@@ -10,14 +10,14 @@
 
 package cms.connector
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonElement
+import java.util.Date
 
 @Serializable
 data class Timetable(@SerialName("week_type") val weekType: WeekType, @SerialName("week_a_periods") val weekAPeriods: UInt, @SerialName("week_b_periods") val weekBPeriods: UInt, @SerialName("duty_periods") val dutyPeriods: UInt, @SerialName("contract_periods") val contractPeriods: UInt, val weekdays: List<WeekDay>) {
@@ -56,7 +56,62 @@ data class Timetable(@SerialName("week_type") val weekType: WeekType, @SerialNam
     }
 }
 
+@Serializable
+enum class Gender {
+    Male,
+    Female,
+}
 
+@Serializable
+enum class Year {
+    G1,
+    G2,
+    A1,
+    A2
+}
+
+@Serializable
+enum class House {
+    Wood,
+    Water,
+    Metal,
+    Fire
+}
+
+@Serializable
+data class UserInformation(
+    @SerialName("has_more_info") val hasMoreInfo: Boolean,
+    @SerialName("general_info") val generalInfo: GeneralInfo,
+    @SerialName("basic_info") val basicInfo: BasicInfo,
+    /** I have no idea what this stores, as for me it is `null` */
+    @SerialName("more_info") val moreInfo: JsonElement?,
+    /** I have no idea what this stores, as for me it is `null` */
+    val relatives: JsonElement?
+) {
+    @Serializable data class GeneralInfo(
+        val id: UInt,
+        val name: String,
+        @SerialName("en_name") val englishName: String,
+        @SerialName("pingyin") val pingyin: String,
+        @SerialName("form_group") val formGroup: String,
+        val photo: String
+    )
+    @Serializable data class BasicInfo(
+        val gender: Gender,
+        @SerialName("grade") val year: Year,
+        val house: House,
+        val dormitory: String,
+        // FIXME: Make this an enum.
+        @SerialName("dormitory_kind") val dormitoryKind: String,
+        // TODO: Consider using some kind of `Date` class or a custom data class that allows for a cleaner way of
+        //   getting this. The problem is that CMS returns this data in the format `YYYY.MM`, so I'm unsure whether
+        //   any standard date type's serialisation logic would work by default.
+        @SerialName("enrollment")  val enrollment: String,
+        @SerialName("mobile") val mobileNumber: String,
+        @SerialName("school_email") val schoolEmail: String,
+        @SerialName("student_email") val studentEmail: String,
+    )
+}
 
 
 @Serializable

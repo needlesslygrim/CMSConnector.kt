@@ -10,6 +10,7 @@
 
 import cms.connector.Timetable
 import cms.connector.UserCredentials
+import cms.connector.UserInformation
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -20,51 +21,53 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import kotlin.system.exitProcess
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+
 class MainTest {
+    private val client = HttpClient(CIO) {
+        install(HttpCookies)
+        install(DefaultRequest) {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            url("https://cms.alevel.com.cn")
+        }
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
     private val password = System.getenv().getOrDefault("CMS_PASSWORD", "")
+
+    @BeforeEach
+    @Test
+    fun testAuthentication() {
+        runBlocking {
+            val tokenResponse = client.request("/api/token/") {
+                method = HttpMethod.Post
+                setBody(UserCredentials("s22901", password))
+            }
+
+            assertEquals(tokenResponse.status, HttpStatusCode.OK)
+        }
+    }
 
     @Test
     fun testTimetable() {
         var timetable: Timetable? = null
         runBlocking {
-            val client = HttpClient(CIO) {
-                install(HttpCookies)
-                install(DefaultRequest) {
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    url("https://cms.alevel.com.cn")
-                }
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-            val tokenResponse = client.request("/api/token/") {
-                method = HttpMethod.Post
-                setBody(UserCredentials("s22901", password))
-                headers {
-                    append("Set-Cookie", "access_token")
-                    append("Set-Cookie", "refresh_token")
-                }
-            }
-
-            if (!tokenResponse.status.isSuccess()) {
-                println("failed to login successfully ${tokenResponse.status}")
-                exitProcess(1)
-            }
-
             val timetableResponse = client.request("/api/legacy/students/my/timetable") {
                 url {
                     parameters.append("year", "2023")
                 }
             }
 
-            if (!timetableResponse.status.isSuccess()) {
-                println("failed to get timetable ${timetableResponse.status}")
-            }
+            assert(timetableResponse.status.isSuccess())
 
             try {
                 timetable = timetableResponse.body<Timetable>()
@@ -72,5 +75,19 @@ class MainTest {
         }
 
         assertNotNull(timetable)
+    }
+
+    @Test
+    fun testUserInformation() {
+        var userInformation: UserInformation? = null
+        runBlocking {
+            val userInformationResponse = client.request("/api/legacy/students/my")
+            assert(userInformationResponse.status.isSuccess())
+            try {
+                userInformation = userInformationResponse.body<UserInformation>()
+            } catch (_: Exception) {}
+        }
+
+        assertNotNull(userInformation)
     }
 }
