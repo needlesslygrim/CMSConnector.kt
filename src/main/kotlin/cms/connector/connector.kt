@@ -20,41 +20,45 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
-enum class WeekType {
-    A,
-    B
-}
-
-@Serializable
-data class Timetable(@SerialName("week_type") val weekType: WeekType, @SerialName("week_a_periods") val weekAPeriods: UInt, @SerialName("week_b_periods") val weekBPeriods: UInt, @SerialName("duty_periods") val dutyPeriods: UInt, @SerialName("contract_periods") val contractPeriods: UInt, val weekdays: List<WeekDay>)
-
-@Serializable
-data class Period(val events: List<Event>)
-object EventTypeSerializer : KSerializer<EventType> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("EventType", PrimitiveKind.BYTE)
-
-    override fun serialize(encoder: Encoder, value: EventType) {
-        encoder.encodeByte(value.discriminant)
+data class Timetable(@SerialName("week_type") val weekType: WeekType, @SerialName("week_a_periods") val weekAPeriods: UInt, @SerialName("week_b_periods") val weekBPeriods: UInt, @SerialName("duty_periods") val dutyPeriods: UInt, @SerialName("contract_periods") val contractPeriods: UInt, val weekdays: List<WeekDay>) {
+    @Serializable
+    enum class WeekType {
+        A,
+        B
     }
 
-    override fun deserialize(decoder: Decoder): EventType {
-        val eventType = decoder.decodeByte()
-        EventType.entries.find { it.discriminant == eventType }?.let { return it } ?: throw IllegalArgumentException("invalid event type")
+    @Serializable
+    data class Event(@SerialName("type") val type: EventType?, val id: UInt?, val name: String?, val room: String?, val teacher: String?, @SerialName("week_type") val weekType: String?)
+
+    @Serializable
+    data class WeekDay(val periods: List<Period>)
+
+    @Serializable
+    data class Period(val events: List<Event>)
+    object EventTypeSerializer : KSerializer<EventType> {
+        override val descriptor: SerialDescriptor
+            get() = PrimitiveSerialDescriptor("EventType", PrimitiveKind.BYTE)
+
+        override fun serialize(encoder: Encoder, value: EventType) {
+            encoder.encodeByte(value.discriminant)
+        }
+
+        override fun deserialize(decoder: Decoder): EventType {
+            val eventType = decoder.decodeByte()
+            EventType.entries.find { it.discriminant == eventType }?.let { return it } ?: throw IllegalArgumentException("invalid event type")
+        }
+    }
+
+    @Serializable(with = EventTypeSerializer::class)
+    enum class EventType(val discriminant: Byte) {
+        Lesson(1),
+        ECA(2);
     }
 }
 
-@Serializable(with = EventTypeSerializer::class)
-enum class EventType(val discriminant: Byte) {
-    Lesson(1),
-    ECA(2);
-}
 
-@Serializable
-data class Event(@SerialName("type") val type: EventType?, val id: UInt?, val name: String?, val room: String?, val teacher: String?, @SerialName("week_type") val weekType: String?)
 
-@Serializable
-data class WeekDay(val periods: List<Period>)
 
 @Serializable
 data class UserCredentials(val username: String, val password: String)
+
