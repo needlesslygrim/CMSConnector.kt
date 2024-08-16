@@ -8,6 +8,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import cms.connector.Assembly
 import cms.connector.Timetable
 import cms.connector.UserCredentials
 import cms.connector.UserInformation
@@ -67,7 +68,7 @@ class MainTest {
                 }
             }
 
-            assert(timetableResponse.status.isSuccess())
+            assertEquals(timetableResponse.status, HttpStatusCode.OK)
 
             try {
                 timetable = timetableResponse.body<Timetable>()
@@ -82,12 +83,26 @@ class MainTest {
         var userInformation: UserInformation? = null
         runBlocking {
             val userInformationResponse = client.request("/api/legacy/students/my")
-            assert(userInformationResponse.status.isSuccess())
+            assertEquals(userInformationResponse.status, HttpStatusCode.OK)
             try {
                 userInformation = userInformationResponse.body<UserInformation>()
             } catch (_: Exception) {}
         }
 
         assertNotNull(userInformation)
+    }
+
+    @Test
+    fun testAssemblies() {
+        var assemblies: List<Assembly>? = null
+        runBlocking {
+            val assembliesResponse = client.request("/api/legacy/students/my/assembly")
+            assertEquals(assembliesResponse.status, HttpStatusCode.OK)
+            try {
+                assemblies = assembliesResponse.body<List<Assembly>>()
+            } catch (_: Exception) {}
+        }
+
+        assertNotNull(assemblies)
     }
 }
