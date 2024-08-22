@@ -8,8 +8,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package cms.connector
+package com.github.needlsslygrim.cmsConnector.cms
 
+import com.github.needlsslygrim.cmsConnector.CMSType
+import com.github.needlsslygrim.cmsConnector.Timetable
+import com.github.needlsslygrim.cmsConnector.util.TimeRange
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,81 +21,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonElement
-
-
-
-/**
- * Holds information about a students timetable.
- * @see Timetable.Week
- */
-data class Timetable(val week: Week) {
-    /** Represents a school-week, with a list of Events on Monday, Tuesday, etc, and the week type, A or B. */
-    data class Week(
-        val mondayEvents: List<TimeSlot>,
-        val tuesdayEvents: List<TimeSlot>,
-        val wednesdayEvents: List<TimeSlot>,
-        val thursdayEvents: List<TimeSlot>,
-        val fridayEvents: List<TimeSlot>,
-        val type: Type
-    ) {
-        /** Type of school-week, A or B. */
-        enum class Type {
-            WeekA, WeekB
-        }
-    }
-
-    /**
-     * Represents a time slot on the timetable. Required to determine whether the lesson in this time slot is different
-     * between week A & B.
-     * @see TimeSlot.Different
-     * @see TimeSlot.Same
-     */
-    sealed class TimeSlot(
-        val startTime: Time, val endTime: Time
-    ) {
-        /** Used when this timeslot is empty */
-        class Empty(startTime: Time, endTime: Time) : TimeSlot(startTime, endTime)
-
-        /**
-         * Used when the lesson in this time slot is not the same in both week A & B.
-         */
-        class Different(
-            val weekAEvent: Event, val weekBEvent: Event, startTime: Time, endTime: Time
-        ) : TimeSlot(startTime, endTime)
-
-        /**
-         * Used when the lesson in this time slot is the same in both week A & B.
-         */
-        class Same(val event: Event, startTime: Time, endTime: Time) : TimeSlot(startTime, endTime)
-    }
-
-    /** A timetable event, as far as I know, these can only either be lessons or ECAs. */
-    data class Event(
-        val id: UInt,
-        val type: Type,
-        val name: String,
-        val room: String,
-    ) {
-        /** The types of event, lesson and ECA. */
-        enum class Type {
-            Lesson, ECA
-        }
-    }
-}
-
-/**
- * All types from the CMS API should implement this interface, to provide a consistent conversion method. This is
- * "required" because the CMS API doesn't always have very good type definitions.
- * @see CMSType.toTodayType
- *
- */
-interface CMSType<T> {
-    /**
-     * Converts this CMS type into its equivalent SCIEToday type.
-    */
-    fun toTodayType(): T
-}
 
 /** The CMS timetable type, which stores timetable information. */
 @Serializable
@@ -109,8 +37,8 @@ data class CMSTimetable(
         A, B;
 
         override fun toTodayType(): Timetable.Week.Type = when (this) {
-            cms.connector.CMSTimetable.WeekType.A -> Timetable.Week.Type.WeekA
-            cms.connector.CMSTimetable.WeekType.B -> Timetable.Week.Type.WeekB
+            A -> Timetable.Week.Type.WeekA
+            B -> Timetable.Week.Type.WeekB
         }
     }
 
@@ -123,13 +51,16 @@ data class CMSTimetable(
         val teacher: String?,
         @SerialName("week_type") val weekType: String?
     ) : CMSType<Timetable.Event> {
-        // FIXME: Custom exception classes.
+        sealed class EventConversionException private constructor(message: String, cause: Throwable? = null) : Exception(message, cause) {
+            class NullField(fieldName: String) : EventConversionException("Field `$fieldName` is null")
+        }
+
         override fun toTodayType(): Timetable.Event {
             return Timetable.Event(
-                id = this.id ?: throw Exception("event id is null"),
-                type = this.type?.toTodayType() ?: throw Exception("event type is null"),
-                name = this.name ?: throw Exception("event name is null"),
-                room = this.room ?: throw Exception("event room is null"),
+                id = this.id ?: throw EventConversionException.NullField("id"),
+                type = this.type?.toTodayType() ?: throw EventConversionException.NullField("type"),
+                name = this.name ?: throw EventConversionException.NullField("name"),
+                room = this.room ?: throw EventConversionException.NullField("room"),
             )
         }
     }
@@ -166,7 +97,11 @@ data class CMSTimetable(
         }
     }
 
-    // FIXME: Custom exception classes.
+    sealed class TimetableConversionException private constructor(message: String, cause: Throwable? = null) : Exception(message, cause) {
+        class InvalidWeekTypeConfiguration(val firstPeriodType: String?, val secondPeriodType: String?) : TimetableConversionException("Invalid configuration of week types in a single period")
+        class InvalidEventCount(count: Int) : TimetableConversionException("Invalid event count for one period: $count")
+    }
+
     override fun toTodayType(): Timetable {
         val events = this.weekdays.map {
             it.periods.mapIndexed { index, period ->
@@ -193,7 +128,10 @@ data class CMSTimetable(
                                 weekBEvent = firstPeriod.toTodayType()
                             }
 
-                            else -> throw Exception("invalid event configuration")
+                            else -> throw TimetableConversionException.InvalidWeekTypeConfiguration(
+                                firstPeriod.weekType,
+                                secondPeriod.weekType
+                            )
                         }
                         timeSlot = Timetable.TimeSlot.Different(
                             weekAEvent = weekAEvent,
@@ -202,13 +140,13 @@ data class CMSTimetable(
                             endTime = times.end
                         )
                     }
-                    else -> throw Exception("more than two events in one timeslot")
+                    else -> throw TimetableConversionException.InvalidEventCount(period.events.size)
                 }
 
                 timeSlot
             }
         }
-        
+
         return Timetable(
             Timetable.Week(
                 type = weekType.toTodayType(),
@@ -221,67 +159,3 @@ data class CMSTimetable(
         )
     }
 }
-
-@Serializable
-enum class Gender {
-    Male, Female,
-}
-
-@Serializable
-enum class YearGroup {
-    G1, G2, A1, A2
-}
-
-@Serializable
-enum class House {
-    Wood, Water, Metal, Fire
-}
-
-@Serializable
-data class UserInformation(
-    @SerialName("has_more_info") val hasMoreInfo: Boolean,
-    @SerialName("general_info") val generalInfo: GeneralInfo,
-    @SerialName("basic_info") val basicInfo: BasicInfo,
-    /** I have no idea what this stores, as for me it is `null` */
-    @SerialName("more_info") val moreInfo: JsonElement?,
-    /** I have no idea what this stores, as for me it is `null` */
-    val relatives: JsonElement?
-) {
-    @Serializable
-    data class GeneralInfo(
-        val id: UInt,
-        val name: String,
-        @SerialName("en_name") val englishName: String,
-        @SerialName("full_name") val fullName: String,
-        @SerialName("form_group") val formGroup: String,
-        val photo: String
-    )
-
-    @Serializable
-    data class BasicInfo(
-        val gender: Gender,
-        @SerialName("grade") val yearGroup: YearGroup,
-        val house: House,
-        val dormitory: String,
-        // FIXME: Make this an enum.
-        @SerialName("dormitory_kind") val dormitoryKind: String,
-        // TODO: Consider using some kind of `Date` class or a custom data class that allows for a cleaner way of
-        //   getting this. The problem is that CMS returns this data in the format `YYYY.MM`, so I'm unsure whether
-        //   any standard date type's serialisation logic would work by default.
-        @SerialName("enrollment") val enrollment: String,
-        @SerialName("mobile") val mobileNumber: String,
-        @SerialName("school_email") val schoolEmail: String,
-        @SerialName("student_email") val studentEmail: String,
-    )
-}
-
-@Serializable
-data class Assembly(
-    val title: String, val location: String,
-    // TODO: Consider using kotlinx-datetime to get a proper date here, as the date is returned in the format
-    //  `YYYY-MM-DD`, which is probably supported out of the box
-    val date: String, val classes: String
-)
-
-@Serializable
-data class UserCredentials(val username: String, val password: String)

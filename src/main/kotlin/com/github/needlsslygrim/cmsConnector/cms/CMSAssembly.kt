@@ -8,16 +8,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package cms.connector
+package com.github.needlsslygrim.cmsConnector.cms
 
-@JvmInline
-value class Time private constructor(private val time: UInt) {
-    val hour get() = time.shr(16)
-    val minute get() = time.and(0xFFFFu)
+import kotlinx.serialization.Serializable
 
-    constructor(hour: UShort, minute: UShort) : this(hour.toUInt().shl(16) or minute.toUInt())
-
-    override fun toString(): String {
-        return "Time(hour=$hour, minute=$minute)";
-    }
-}
+@Serializable
+data class CMSAssembly(
+    val title: String, val location: String,
+    // TODO: Consider using kotlinx-datetime to get a proper date here, as the date is returned in the format
+    //  `YYYY-MM-DD`, which is probably supported out of the box
+    val date: String, val classes: String
+)

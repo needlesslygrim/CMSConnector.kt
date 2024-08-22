@@ -8,7 +8,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import cms.connector.*
+import com.github.needlsslygrim.cmsConnector.cms.CMSTimetable
+import com.github.needlsslygrim.cmsConnector.cms.CMSAssembly
+import com.github.needlsslygrim.cmsConnector.UserCredentials
+import com.github.needlsslygrim.cmsConnector.cms.CMSUserInformation
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -23,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 
 class MainTest {
@@ -50,7 +52,7 @@ class MainTest {
             val userInformationResponse = client.request("/api/legacy/students/my")
             assertEquals(userInformationResponse.status, HttpStatusCode.OK)
             assertDoesNotThrow {
-                userInformationResponse.body<UserInformation>()
+                userInformationResponse.body<CMSUserInformation>()
             }
         }
 
@@ -62,7 +64,7 @@ class MainTest {
             val assembliesResponse = client.request("/api/legacy/students/my/assembly")
             assertEquals(assembliesResponse.status, HttpStatusCode.OK)
             assertDoesNotThrow {
-                assembliesResponse.body<List<Assembly>>()
+                assembliesResponse.body<List<CMSAssembly>>()
             }
         }
 
