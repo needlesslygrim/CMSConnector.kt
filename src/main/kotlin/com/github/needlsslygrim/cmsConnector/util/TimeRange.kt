@@ -40,5 +40,5 @@ data class TimeRange(val start: Time, val end: Time) {
     }
 }
 
-/** Creates a [TimeRange] from a [start time][this] and [end time][end] */
+/** Creates a [TimeRange] from a [start time][this] and [end time][end]. */
 inline infix fun Time.to(end: Time) = TimeRange(this, end)
