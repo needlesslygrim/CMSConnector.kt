@@ -8,10 +8,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import cms.connector.Assembly
-import cms.connector.Timetable
-import cms.connector.UserCredentials
-import cms.connector.UserInformation
+import cms.connector.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -23,86 +20,80 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import kotlin.system.exitProcess
+import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 
 class MainTest {
-    private val client = HttpClient(CIO) {
-        install(HttpCookies)
-        install(DefaultRequest) {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            url("https://cms.alevel.com.cn")
-        }
-        install(ContentNegotiation) {
-            json()
-        }
-    }
-
-    private val password = System.getenv().getOrDefault("CMS_PASSWORD", "")
-
-    @BeforeEach
-    @Test
-    fun testAuthentication() {
-        runBlocking {
-            val tokenResponse = client.request("/api/token/") {
-                method = HttpMethod.Post
-                setBody(UserCredentials("s22901", password))
-            }
-
-            assertEquals(tokenResponse.status, HttpStatusCode.OK)
-        }
-    }
-
     @Test
     fun testTimetable() {
-        var timetable: Timetable? = null
         runBlocking {
             val timetableResponse = client.request("/api/legacy/students/my/timetable") {
                 url {
-                    parameters.append("year", "2023")
+                    parameters.append("year", "2024")
                 }
             }
 
             assertEquals(timetableResponse.status, HttpStatusCode.OK)
 
-            try {
-                timetable = timetableResponse.body<Timetable>()
-            } catch (_: Exception) {}
+            assertDoesNotThrow {
+               timetableResponse.body<CMSTimetable>().toTodayType()
+            }
         }
-
-        assertNotNull(timetable)
     }
 
     @Test
     fun testUserInformation() {
-        var userInformation: UserInformation? = null
         runBlocking {
             val userInformationResponse = client.request("/api/legacy/students/my")
             assertEquals(userInformationResponse.status, HttpStatusCode.OK)
-            try {
-                userInformation = userInformationResponse.body<UserInformation>()
-            } catch (_: Exception) {}
+            assertDoesNotThrow {
+                userInformationResponse.body<UserInformation>()
+            }
         }
 
-        assertNotNull(userInformation)
     }
 
     @Test
     fun testAssemblies() {
-        var assemblies: List<Assembly>? = null
         runBlocking {
             val assembliesResponse = client.request("/api/legacy/students/my/assembly")
             assertEquals(assembliesResponse.status, HttpStatusCode.OK)
-            try {
-                assemblies = assembliesResponse.body<List<Assembly>>()
-            } catch (_: Exception) {}
+            assertDoesNotThrow {
+                assembliesResponse.body<List<Assembly>>()
+            }
         }
 
-        assertNotNull(assemblies)
+    }
+
+    companion object {
+        private val client = HttpClient(CIO) {
+            install(HttpCookies)
+            install(DefaultRequest) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                url("https://cms.alevel.com.cn")
+            }
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        private val password = System.getenv().getOrDefault("CMS_PASSWORD", "")
+
+        @JvmStatic
+        @BeforeAll
+        fun authenticate(): Unit {
+            runBlocking {
+                val response = client.request("/api/token/") {
+                    method = HttpMethod.Post
+                    setBody(UserCredentials("s22901", password))
+                }
+
+                assertEquals(HttpStatusCode.OK, response.status)
+            }
+        }
     }
 }
