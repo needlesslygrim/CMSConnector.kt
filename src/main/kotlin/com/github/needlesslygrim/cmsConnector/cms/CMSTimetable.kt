@@ -70,22 +70,8 @@ data class CMSTimetable(
 
     @Serializable
     data class Period(val events: List<Event>)
-    object EventTypeSerializer : KSerializer<EventType> {
-        override val descriptor: SerialDescriptor
-            get() = PrimitiveSerialDescriptor("EventType", PrimitiveKind.BYTE)
 
-        override fun serialize(encoder: Encoder, value: EventType) {
-            encoder.encodeByte(value.discriminant)
-        }
-
-        override fun deserialize(decoder: Decoder): EventType {
-            val eventType = decoder.decodeByte()
-            EventType.entries.find { it.discriminant == eventType }?.let { return it }
-                ?: throw IllegalArgumentException("invalid event type")
-        }
-    }
-
-    @Serializable(with = EventTypeSerializer::class)
+    @Serializable(with = EventType.Serialiser::class)
     enum class EventType(val discriminant: Byte) : CMSType<Timetable.Event.Type> {
         Lesson(1), ECA(2);
 
@@ -93,6 +79,21 @@ data class CMSTimetable(
             return when (this) {
                 Lesson -> Timetable.Event.Type.Lesson
                 ECA -> Timetable.Event.Type.ECA
+            }
+        }
+
+        object Serialiser : KSerializer<EventType> {
+            override val descriptor: SerialDescriptor
+                get() = PrimitiveSerialDescriptor("EventType", PrimitiveKind.BYTE)
+
+            override fun serialize(encoder: Encoder, value: EventType) {
+                encoder.encodeByte(value.discriminant)
+            }
+
+            override fun deserialize(decoder: Decoder): EventType {
+                val eventType = decoder.decodeByte()
+                EventType.entries.find { it.discriminant == eventType }?.let { return it }
+                    ?: throw IllegalArgumentException("invalid event type")
             }
         }
     }
