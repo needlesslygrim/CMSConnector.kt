@@ -29,6 +29,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
+// TODO: Split these tests into two classes, one for the network requests, and one for the parsing (using a sample json
+//  response.
 class MainTest {
     @Test
     fun testTimetable() {
@@ -51,7 +53,7 @@ class MainTest {
     fun testUserInformation() {
         runBlocking {
             val userInformationResponse = client.request("/api/legacy/students/my")
-            assertEquals(userInformationResponse.status, HttpStatusCode.OK)
+            assertEquals(HttpStatusCode.OK, userInformationResponse.status)
             assertDoesNotThrow {
                 userInformationResponse.body<CMSUserInformation>()
             }
@@ -63,7 +65,7 @@ class MainTest {
     fun testAssemblies() {
         runBlocking {
             val assembliesResponse = client.request("/api/legacy/students/my/assembly")
-            assertEquals(assembliesResponse.status, HttpStatusCode.OK)
+            assertEquals(HttpStatusCode.OK, assembliesResponse.status)
             assertDoesNotThrow {
                 assembliesResponse.body<List<CMSAssembly>>()
             }
