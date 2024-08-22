@@ -11,6 +11,7 @@
 import com.github.needlesslygrim.cmsConnector.cms.CMSTimetable
 import com.github.needlesslygrim.cmsConnector.cms.CMSAssembly
 import com.github.needlesslygrim.cmsConnector.UserCredentials
+import com.github.needlesslygrim.cmsConnector.cms.CMSAttendance
 import com.github.needlesslygrim.cmsConnector.cms.CMSUserInformation
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -68,6 +69,17 @@ class MainTest {
             }
         }
 
+    }
+
+    @Test
+    fun testAttendance() {
+        runBlocking {
+            val attendanceResponse = client.request("/api/legacy/students/my/attendance")
+            assertEquals(HttpStatusCode.OK, attendanceResponse.status)
+            assertDoesNotThrow {
+                attendanceResponse.body<CMSAttendance>()
+            }
+        }
     }
 
     companion object {
