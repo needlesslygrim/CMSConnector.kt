@@ -8,7 +8,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector.util
+package com.github.needlesslygrim.cmsConnector.util
 
 // TOOD: Consider making this an inline value class like Time is, using a ULong to directly store the two times.
 /**

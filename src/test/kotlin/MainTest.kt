@@ -8,10 +8,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import com.github.needlsslygrim.cmsConnector.cms.CMSTimetable
-import com.github.needlsslygrim.cmsConnector.cms.CMSAssembly
-import com.github.needlsslygrim.cmsConnector.UserCredentials
-import com.github.needlsslygrim.cmsConnector.cms.CMSUserInformation
+import com.github.needlesslygrim.cmsConnector.cms.CMSTimetable
+import com.github.needlesslygrim.cmsConnector.cms.CMSAssembly
+import com.github.needlesslygrim.cmsConnector.UserCredentials
+import com.github.needlesslygrim.cmsConnector.cms.CMSUserInformation
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

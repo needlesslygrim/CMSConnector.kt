@@ -8,7 +8,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector
+package com.github.needlesslygrim.cmsConnector
 
 import kotlinx.serialization.Serializable
 

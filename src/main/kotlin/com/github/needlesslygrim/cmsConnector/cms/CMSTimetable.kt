@@ -8,11 +8,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector.cms
+package com.github.needlesslygrim.cmsConnector.cms
 
-import com.github.needlsslygrim.cmsConnector.CMSType
-import com.github.needlsslygrim.cmsConnector.Timetable
-import com.github.needlsslygrim.cmsConnector.util.TimeRange
+import com.github.needlesslygrim.cmsConnector.CMSType
+import com.github.needlesslygrim.cmsConnector.Timetable
+import com.github.needlesslygrim.cmsConnector.util.TimeRange
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

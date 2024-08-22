@@ -8,11 +8,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector.cms
+package com.github.needlesslygrim.cmsConnector.cms
 
-import com.github.needlsslygrim.cmsConnector.Gender
-import com.github.needlsslygrim.cmsConnector.House
-import com.github.needlsslygrim.cmsConnector.YearGroup
+import com.github.needlesslygrim.cmsConnector.Gender
+import com.github.needlesslygrim.cmsConnector.House
+import com.github.needlesslygrim.cmsConnector.YearGroup
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement

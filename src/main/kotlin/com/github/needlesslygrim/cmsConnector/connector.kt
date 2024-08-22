@@ -8,9 +8,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector
+package com.github.needlesslygrim.cmsConnector
 
-import com.github.needlsslygrim.cmsConnector.util.Time
+import com.github.needlesslygrim.cmsConnector.util.Time
 import kotlinx.serialization.Serializable
 
 

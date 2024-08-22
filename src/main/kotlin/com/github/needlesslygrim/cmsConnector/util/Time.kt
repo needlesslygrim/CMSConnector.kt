@@ -8,7 +8,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-package com.github.needlsslygrim.cmsConnector.util
+package com.github.needlesslygrim.cmsConnector.util
 
 @JvmInline
 value class Time private constructor(private val time: UInt) {
