@@ -41,7 +41,9 @@ class NetworkTest {
             assertEquals(timetableResponse.status, HttpStatusCode.OK)
 
             assertDoesNotThrow {
-               timetableResponse.body<CMSTimetable>().toTodayType()
+               timetableResponse
+                   .body<CMSTimetable>()
+                   .toTodayType()
             }
         }
     }
@@ -52,7 +54,8 @@ class NetworkTest {
             val userInformationResponse = client.request("/api/legacy/students/my")
             assertEquals(HttpStatusCode.OK, userInformationResponse.status)
             assertDoesNotThrow {
-                userInformationResponse.body<CMSUserInformation>()
+                userInformationResponse
+                    .body<CMSUserInformation>()
             }
         }
     }
@@ -63,7 +66,8 @@ class NetworkTest {
             val assembliesResponse = client.request("/api/legacy/students/my/assembly")
             assertEquals(HttpStatusCode.OK, assembliesResponse.status)
             assertDoesNotThrow {
-                assembliesResponse.body<List<CMSAssembly>>()
+                assembliesResponse
+                    .body<List<CMSAssembly>>()
             }
         }
 
@@ -75,7 +79,9 @@ class NetworkTest {
             val attendanceResponse = client.request("/api/legacy/students/my/attendance")
             assertEquals(HttpStatusCode.OK, attendanceResponse.status)
             assertDoesNotThrow {
-                attendanceResponse.body<CMSAttendance>()
+                attendanceResponse
+                    .body<CMSAttendance>()
+                    .toTodayType()
             }
         }
     }

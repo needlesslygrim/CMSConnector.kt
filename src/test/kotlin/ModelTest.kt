@@ -27,7 +27,8 @@ class ModelTest {
     fun testAssembly() {
         runBlocking {
             assertDoesNotThrow {
-                Json.decodeFromString<List<CMSAssembly>>(assemblyJson)
+                Json
+                    .decodeFromString<List<CMSAssembly>>(assemblyJson)
             }
         }
     }
@@ -36,8 +37,11 @@ class ModelTest {
     fun testAttendance() {
         runBlocking {
             assertDoesNotThrow {
-                Json.decodeFromString<CMSAttendance>(attendanceJson)
+                Json
+                    .decodeFromString<CMSAttendance>(attendanceJson)
+                    .toTodayType()
             }
+
         }
     }
 
@@ -45,7 +49,9 @@ class ModelTest {
     fun testTimetable() {
         runBlocking {
             assertDoesNotThrow {
-                Json.decodeFromString<CMSTimetable>(timetableJson).toTodayType()
+                Json
+                    .decodeFromString<CMSTimetable>(timetableJson)
+                    .toTodayType()
             }
         }
     }
@@ -54,7 +60,9 @@ class ModelTest {
     fun testUserInformation() {
         runBlocking {
             assertDoesNotThrow {
-                Json.decodeFromString<CMSUserInformation>(userInformationJson).toTodayType()
+                Json
+                    .decodeFromString<CMSUserInformation>(userInformationJson)
+                    .toTodayType()
             }
         }
     }
