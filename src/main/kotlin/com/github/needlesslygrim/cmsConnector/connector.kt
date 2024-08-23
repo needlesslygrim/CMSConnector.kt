@@ -73,6 +73,8 @@ data class Timetable(val week: Week) {
     }
 }
 
+data class UserInformation(val id: UInt, val name: String, val house: House, val formGroup: String)
+
 /**
  * Most types from the CMS API should implement this interface, to provide a consistent conversion method. This is
  * "required" because the CMS API doesn't always have very good type definitions. However, if the original type is

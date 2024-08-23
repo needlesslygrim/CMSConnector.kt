@@ -10,9 +10,7 @@
 
 package com.github.needlesslygrim.cmsConnector.cms
 
-import com.github.needlesslygrim.cmsConnector.Gender
-import com.github.needlesslygrim.cmsConnector.House
-import com.github.needlesslygrim.cmsConnector.YearGroup
+import com.github.needlesslygrim.cmsConnector.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -26,7 +24,7 @@ data class CMSUserInformation(
     @SerialName("more_info") val moreInfo: JsonElement?,
     /** I have no idea what this stores, as for me it is `null` */
     val relatives: JsonElement?
-) {
+) : CMSType<UserInformation> {
     @Serializable
     data class GeneralInfo(
         val id: UInt,
@@ -53,4 +51,12 @@ data class CMSUserInformation(
         @SerialName("school_email") val schoolEmail: String,
         @SerialName("student_email") val studentEmail: String,
     )
+
+    override fun toTodayType(): UserInformation =
+        UserInformation(
+            id = generalInfo.id,
+            name = generalInfo.name,
+            house = basicInfo.house,
+            formGroup = generalInfo.formGroup
+        )
 }
