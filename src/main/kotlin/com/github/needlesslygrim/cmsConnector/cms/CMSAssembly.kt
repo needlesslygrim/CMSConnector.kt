@@ -14,8 +14,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CMSAssembly(
-    val title: String, val location: String,
+    val title: String,
+    val location: String,
     // TODO: Consider using kotlinx-datetime to get a proper date here, as the date is returned in the format
     //  `YYYY-MM-DD`, which is probably supported out of the box
-    val date: String, val classes: String
+    val date: String,
+    val classes: String
 )
