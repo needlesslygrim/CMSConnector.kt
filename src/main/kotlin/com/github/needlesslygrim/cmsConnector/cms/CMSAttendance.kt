@@ -35,9 +35,14 @@ data class CMSAttendance(
         @SerialName("absent_count") val absentCount: Double,
     )
 
-    /** An individual attendance record */
+    /** An individual attendance record. */
     @Serializable
-    data class AttendanceRecord(@SerialName("course_id") val courseId: Int, @SerialName("course_name") val courseName: String, val kind: AttendanceKind, val reason: String) {
+    data class AttendanceRecord(
+        @SerialName("course_id") val courseId: Int,
+        @SerialName("course_name") val courseName: String,
+        val kind: AttendanceKind,
+        val reason: String
+    ) {
         /** The type of attendance record, present, late, etc. */
         //  The discriminants here are reverse-engineered from a
         //   switch statement in the original code which sets the colours of the key at the top-right of the attendance
