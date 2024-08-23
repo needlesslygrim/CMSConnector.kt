@@ -8,10 +8,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import com.github.needlesslygrim.cmsConnector.cms.CMSTimetable
-import com.github.needlesslygrim.cmsConnector.cms.CMSAssembly
 import com.github.needlesslygrim.cmsConnector.UserCredentials
+import com.github.needlesslygrim.cmsConnector.cms.CMSAssembly
 import com.github.needlesslygrim.cmsConnector.cms.CMSAttendance
+import com.github.needlesslygrim.cmsConnector.cms.CMSTimetable
 import com.github.needlesslygrim.cmsConnector.cms.CMSUserInformation
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -28,10 +28,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-
-// TODO: Split these tests into two classes, one for the network requests, and one for the parsing (using a sample json
-//  response.
-class MainTest {
+class NetworkTest {
     @Test
     fun testTimetable() {
         runBlocking {
@@ -58,7 +55,6 @@ class MainTest {
                 userInformationResponse.body<CMSUserInformation>()
             }
         }
-
     }
 
     @Test
@@ -101,7 +97,7 @@ class MainTest {
 
         @JvmStatic
         @BeforeAll
-        fun authenticate(): Unit {
+        fun authenticate() {
             runBlocking {
                 val response = client.request("/api/token/") {
                     method = HttpMethod.Post
