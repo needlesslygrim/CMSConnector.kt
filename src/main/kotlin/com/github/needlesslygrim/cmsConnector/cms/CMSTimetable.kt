@@ -24,7 +24,7 @@ import kotlinx.serialization.encoding.Encoder
 
 /** The CMS timetable type, which stores timetable information. */
 @Serializable
-data class CMSTimetable(
+internal data class CMSTimetable(
     @SerialName("week_type") val weekType: WeekType,
     @SerialName("week_a_periods") val weekAPeriods: UInt,
     @SerialName("week_b_periods") val weekBPeriods: UInt,

@@ -13,7 +13,7 @@ package com.github.needlesslygrim.cmsConnector.cms
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CMSAssembly(
+internal data class CMSAssembly(
     val title: String,
     val location: String,
     // TODO: Consider using kotlinx-datetime to get a proper date here, as the date is returned in the format

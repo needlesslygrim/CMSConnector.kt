@@ -23,7 +23,7 @@ import kotlinx.serialization.encoding.Encoder
 
 /** The CMS attendance type, storing information about a student's attendance record. */
 @Serializable
-data class CMSAttendance(
+internal data class CMSAttendance(
     @SerialName("student_name") val studentName: String,
     @SerialName("student_id") val studentId: UInt,
     @SerialName("total_absent_count") val totalAbsentCount: Double,

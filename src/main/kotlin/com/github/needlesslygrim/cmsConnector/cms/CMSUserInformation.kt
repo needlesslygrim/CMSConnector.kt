@@ -16,7 +16,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class CMSUserInformation(
+internal data class CMSUserInformation(
     @SerialName("has_more_info") val hasMoreInfo: Boolean,
     @SerialName("general_info") val generalInfo: GeneralInfo,
     @SerialName("basic_info") val basicInfo: BasicInfo,
