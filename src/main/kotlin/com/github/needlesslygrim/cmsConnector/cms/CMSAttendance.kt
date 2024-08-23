@@ -23,7 +23,7 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable
 data class CMSAttendance(
     @SerialName("student_name") val studentName: String,
-    @SerialName("student_id") val studentId: String,
+    @SerialName("student_id") val studentId: UInt,
     @SerialName("total_absent_count") val totalAbsentCount: Double,
     @SerialName("record_of_days") val recordOfDays: List<Day>
 ) {
